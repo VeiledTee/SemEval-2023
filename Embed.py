@@ -42,7 +42,10 @@ class Embed:
         :return: A dictionary with Argument IDs as Keys and the re[restive embeddings as Values. This is the same dictionary saved to the JSON file.
         """
         to_save = {}
-        if self.uncased:
+        if os.path.exists(f"JSON/{self.filename}.json"):  # get embeddings if they exist already
+            with open(f"JSON/{self.filename}.json") as json_file:
+                to_save = json.load(json_file)
+        elif self.uncased:
             # uncased embeddings
             tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")  # load model
             logging.set_verbosity_error()

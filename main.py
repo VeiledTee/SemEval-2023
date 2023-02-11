@@ -14,6 +14,8 @@ def get_label_frames() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 if __name__ == '__main__':
+    print('am running')
+    include_valid = True
     train, valid, test = get_premise_frames()
     labels_train, labels_valid = get_label_frames()
 
@@ -24,6 +26,11 @@ if __name__ == '__main__':
     test_embedding_uncased = Embed(test, 'uncased_testing_tokens', True).saveEmbeddings()
     test_embedding_sentence = Embed(test, 'sentence_testing_tokens', False).saveEmbeddings()
 
+    if include_valid:
+        train_embedding_uncased.update(valid_embedding_uncased)
+        train_embedding_sentence.update(valid_embedding_sentence)
+        labels_train = pd.concat([labels_train, labels_valid])
+
     # XGBoost model
     xgboost_parameters = {
         'objective': 'binary:logistic',
@@ -33,7 +40,8 @@ if __name__ == '__main__':
         'colsample_bytree': 1,
         'lambda': 0,
     }
-    xgboost_model = XGBoostUncased(parameters=xgboost_parameters, test_frame=test, training_embeddings=None, testing_embeddings=None, training_file="JSON/uncased_training_tokens.json", testing_file="JSON/uncased_testing_tokens.json")
+
+    xgboost_model = XGBoostUncased(parameters=xgboost_parameters, test_frame=test, training_embeddings=train_embedding_uncased, testing_embeddings=test_embedding_uncased)
     xgboost_model.run(test_frame=test, labels=labels_train)
 
     # Ensemble Uncased
@@ -44,7 +52,7 @@ if __name__ == '__main__':
             'n_estimators': 200,
             'voting': 'soft',
         }
-    ensemble_uncased = Ensemble(parameters=e_uncased_parameters, test_frame=test, training_embeddings=None, testing_embeddings=None, training_file="JSON/uncased_training_tokens.json", testing_file="JSON/uncased_testing_tokens.json", uncased=True)
+    ensemble_uncased = Ensemble(parameters=e_uncased_parameters, test_frame=test, training_embeddings=train_embedding_uncased, testing_embeddings=test_embedding_uncased, uncased=True)
     ensemble_uncased.run(labels=labels_train)
 
     # Ensemble Sentence
@@ -55,9 +63,10 @@ if __name__ == '__main__':
             'n_estimators': 200,
             'voting': 'soft',
         }
-    ensemble_sentence = Ensemble(parameters=e_sentence_parameters, test_frame=test, training_embeddings=None, testing_embeddings=None, training_file="JSON/sentence_training_tokens.json", testing_file="JSON/sentence_testing_tokens.json", uncased=False)
+
+    ensemble_sentence = Ensemble(parameters=e_sentence_parameters, test_frame=test, training_embeddings=train_embedding_sentence, testing_embeddings=test_embedding_sentence, uncased=False)
     ensemble_sentence.run(labels=labels_train)
 
     # Threshold Comparison
-    unsupervised_comparison = ThresholdComparison(testing_embeddings=None, testing_file="JSON/sentence_testing_tokens.json")
+    unsupervised_comparison = ThresholdComparison(testing_embeddings=test_embedding_sentence)
     unsupervised_comparison.run(labels_train)

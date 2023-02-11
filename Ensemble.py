@@ -1,14 +1,12 @@
-import numpy as np
+import os
+
 import pandas as pd
-import json
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-from save_results import export_results
-from sentence_transformers import SentenceTransformer
+
 from Embed import load
-import os
+from save_results import export_results
 
 
 class Ensemble:
