@@ -14,7 +14,6 @@ def get_label_frames() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 if __name__ == '__main__':
-    print('am running')
     include_valid = True
     train, valid, test = get_premise_frames()
     labels_train, labels_valid = get_label_frames()

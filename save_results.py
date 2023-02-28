@@ -2,7 +2,6 @@ import pandas as pd
 
 
 def export_results(col_names: list, arguments: list, results: list, filename: str):
-    print("Preparing to Export")
     df = pd.DataFrame(columns=col_names)
     df[df.columns[0]] = arguments
     print("\tExporting in Progress")

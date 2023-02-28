@@ -22,11 +22,6 @@ def inverse_document_frequency(word: str):
 
 
 def tf_idf(document, term):
-    print(f"Term: {term}")
-    print(f"TF: {term_frequency(document, term)}")
-    print(f"IDF: {inverse_document_frequency(term)}")
-    print(f"Count: {document.split().count(term)}")
-
     return term_frequency(document, term) * inverse_document_frequency(term)
 
 
@@ -48,7 +43,6 @@ for i in range(1, len(labels.columns)):
         curr.append(text)
         text = text.translate(str.maketrans('', '', string.punctuation))
         doc_text += text.lower() + " "
-    print(len(curr))
     documents.append([doc_text, set(doc_text.split())])
 
 for i in range(len(documents)):
